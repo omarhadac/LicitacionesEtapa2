@@ -1,0 +1,832 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot de Decisiones</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+
+    <style>
+        body {
+           
+        }
+
+        #chat-container {
+            width: 400px;
+            margin: 0 auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+            height: 500px;
+            z-index: 9999;
+            position: fixed; /* Fijar el contenedor en la pantalla */
+            top: 60%; /* Posicionar en la mitad vertical */
+            transform: translate(-28%, -55%); /* Centrar el contenedor */
+            backdrop-filter: blur(10px);
+            left: 70%;
+        }
+
+        #header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            margin-bottom: 10px;
+            background-color: purple; /* Cambia el color de fondo a morado */
+            padding: 10px; /* Agrega un espacio interno al encabezado */-28
+            border-radius: 5px; /* Agrega bordes redondeados */
+        }
+
+        #username {
+            font-size: 25px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        #status {
+            font-size: 12px;
+            color: white;
+        }
+
+        #input-container {
+            display: flex;
+            align-items: center;
+        }
+
+        #user-input {
+            flex-grow: 1;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            margin-right: 5px;
+        }
+
+        #send-button {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #007bff;
+        }
+        #close-button {
+            cursor: pointer;
+            font-size: 18px;
+            color: white;
+        }
+        #user-info {
+            display: flex;
+            align-items: center;
+            padding-right: 200px;
+        }
+        #robot-image {
+            width: 40px; /* Ajusta el tamaño de la imagen */
+            height: 40px;
+            border-radius: 50%; /* Hace la imagen redonda */
+            margin-right: 10px; /* Agrega espacio derecho entre la imagen y el texto */
+        }
+        #username-status {
+            display: flex;
+            flex-direction: column;
+        }
+        #chat {
+            height: 400px;
+            overflow-y: scroll;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 10px;
+            background: linear-gradient(to bottom, #F3E5F5 50%, white 50%);
+            padding: 10px;
+        }
+
+        .message {
+            background-color: white;
+            border-radius: 5px;
+            padding: 5px 10px;
+            margin-bottom: 15px;
+        }
+
+        .initial-message {
+            background-color: #E1BEE7; /* Color morado más claro */
+            text-align: right;
+            border-radius: 5px 5px 0 5px; /* Redondea solo la esquina superior derecha */
+        }
+
+        .typing-indicator {
+            background-color: #E1BEE7; /* Color morado más claro */
+            text-align: right;
+            border-radius: 5px 5px 5px 0; /* Redondea solo la esquina superior derecha */
+        }
+
+        .help-message {
+            background-color: #E1BEE7; /* Color morado más claro */
+            text-align: left;
+            border-radius: 5px 5px 5px 0;
+        }
+        .response-message {
+            background-color: #f2ddf6; /* Color morado más claro */
+            text-align: right;
+            border-radius: 5px 5px 0 5px;
+        }
+
+        .emoji {
+            font-size: 20px;
+            margin-left: 5px;
+        }
+        .typing-indicator {
+            /*background-color: #E1BEE7;*/
+            text-align: right;
+            /*border-radius: 5px 5px 0 5px;*/
+            position: relative;
+            overflow: hidden;
+        }
+
+            .typing-indicator .dot-1,
+            .typing-indicator .dot-2,
+            .typing-indicator .dot-3 {
+                display: inline-block;
+                opacity: 0;
+                animation: typing-dots 1.5s infinite;
+            }
+        .option-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            padding: 5px 10px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+
+        /* Estilos adicionales */
+        .user-selected-option {
+            background-color: #E1BEE7; /* Color morado más claro */
+            text-align: left;
+            border-radius: 5px;
+            padding: 5px 20px;
+            margin-bottom: 5px;
+        }
+        .message-time {
+            float: right; /* Alinea a la derecha */
+            font-size: 12px; /* Ajusta el tamaño de la fuente según tus preferencias */
+            margin-top: 5px; /* Agrega un margen superior para separar de los mensajes */
+            color: gray; /* Color de la fuente de la fecha y hora */
+           
+        }
+        .page-footer {
+            position: fixed;
+            right: 0;
+            bottom: 20px;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+        }
+
+            .page-footer a {
+                margin-left: 4px;
+            }
+    </style>
+</head>
+<body>
+    
+    <div id="chat-container">
+        <div id="header">
+            <div id="user-info">
+                <img class="img-circle" src="~/AdminLte/dist/img/robot2.png" alt="Robot" id="robot-image">
+                <div id="username-status">
+                    <span id="username">Lici</span>
+                    <span id="status">En línea</span>
+                </div>
+            </div>
+            <button type="button" class="btn btn-tool" data-card-widget="collapse" onclick="configurar()">
+                <i class="fas fa-cogs"></i>
+            </button>
+            <button type="button" class="btn btn-tool" data-card-widget="remove" onclick="cerrarChat()">
+                <i class="fas fa-times"></i>
+            </button>
+            @*<span id="close-button" onclick="closeChat()">x</span>*@
+        </div>
+        <div id="chat">
+            <!--<div class="message initial-message right">-->
+            @*¡Hola! Soy Lici, tu asistente virtual <span class="emoji">👋</span>
+                <br />
+                <span class="message-time">12:34 PM</span>*@
+            <!--</div>-->
+
+        </div>
+
+        @*<div id="input-container">
+                <input type="text" id="user-input" placeholder="Escribe aquí...">
+                <button id="send-button"><i class="fas fa-paper-plane"></i></button>
+            </div>*@
+    </div>
+
+    <script>
+        const chatContainer = document.getElementById("chat_header");
+        //const userInput = document.getElementById("user-input");
+        //const sendButton = document.getElementById("send-button");
+        //sendButton.addEventListener("click", processUserInput);
+        var chatBody = document.getElementById('chat');
+        function scrollToBottomSmoothly() {
+            var currentPosition = chatBody.scrollTop;
+            var targetPosition = chatBody.scrollHeight - chatBody.clientHeight;
+            var duration = 500; // Duración de la animación en milisegundos
+            var startTime;
+
+            function animateScroll(timestamp) {
+                startTime = startTime || timestamp;
+                var elapsed = timestamp - startTime;
+
+                // Calcula la nueva posición de desplazamiento en función del tiempo
+                var newPosition = easeInOut(elapsed, currentPosition, targetPosition - currentPosition, duration);
+
+                // Establece la nueva posición de desplazamiento
+                chatBody.scrollTop = newPosition;
+
+                // Continúa la animación si no ha alcanzado la posición final
+                if (elapsed < duration) {
+                    requestAnimationFrame(animateScroll);
+                }
+            }
+
+            // Inicia la animación
+            requestAnimationFrame(animateScroll);
+        }
+
+        function easeInOut(t, b, c, d) {
+            t /= d / 2;
+            if (t < 1) return c / 2 * t * t + b;
+            t--;
+            return -c / 2 * (t * (t - 2) - 1) + b;
+        }
+
+        const messages = [
+            "Hola, ¡bienvenido a nuestro chatbot de decisiones!",
+            "Por favor, elige una opción:\n1. OFERTA ECONÓMICA\n2. PRESENTACIÓN DE DOCUMENTACIÓN\n3. FIRMA DIGITAL",
+            "¡Has seleccionado OFERTA ECONÓMICA!",
+            "¡Has seleccionado PRESENTACIÓN DE DOCUMENTACIÓN!",
+            "¡Has seleccionado FIRMA DIGITAL!"
+        ];
+
+        let step = 0;
+
+        function displayMessage(message) {
+            const messageElement = document.createElement("div");
+            messageElement.textContent = message;
+            //chatContainer.appendChild(messageElement);
+        }
+
+        function processUserInput() {
+            const userText = userInput.value;
+            displayMessage("Usuario: " + userText);
+
+            if (step === 0) {
+                displayMessage(messages[0]);
+                step = 1;
+            } else if (step === 1) {
+                displayMessage(messages[1]);
+                step = 2;
+            } else if (step === 2 && userText === "1") {
+                displayMessage(messages[2]);
+                step = 0;
+            } else if (step === 2 && userText === "2") {
+                displayMessage(messages[3]);
+                step = 0;
+            } else if (step === 2 && userText === "3") {
+                displayMessage(messages[4]);
+                step = 0;
+            } else {
+                displayMessage("Opción no válida, por favor selecciona una opción válida.");
+                step = 1;
+            }
+
+            //userInput.value = "";
+            //userInput.focus();
+        }
+
+        //userInput.addEventListener("keyup", function (event) {
+        //    if (event.key === "Enter") {
+        //        processUserInput();
+        //    }
+        //});
+
+        //displayMessage(messages[0]);
+        function closeChat() {
+            var chatContainer = document.getElementById("chat-container");
+            chatContainer.style.display = "none";
+        }
+        // Función para mostrar "Escribiendo..." con animación
+        function showTypingIndicator() {
+            var typingIndicator = document.createElement("div");
+            typingIndicator.className = "message typing-indicator";
+            typingIndicator.innerHTML = '<img src=\"/Content/img/2923-prints-dark.gif\" style=\"width: 20px;\"></img>';
+            document.getElementById("chat").appendChild(typingIndicator);
+
+            setTimeout(function () {
+                typingIndicator.style.display = "none";
+                showResponse(null, null, null);
+            }, 3000); // 3000 milisegundos (3 segundos)
+        }
+
+        // Función para mostrar "En qué puedo ayudarte?"
+        function showHelpMessage() {
+            var helpMessage = document.createElement("div");
+            helpMessage.className = "message help-message right";
+            helpMessage.textContent = "En qué puedo ayudarte? (Seleccione una opción)";
+
+
+            var optionsContainer = document.createElement("div");
+            optionsContainer.className = "options right";
+            optionsContainer.innerHTML = `
+                    <button class="option-button" onclick="showResponse(1)">1. OFERTA ECONÓMICA</button>
+                    <button class="option-button" onclick="showResponse(2)">2. PRESENTACIÓN DE DOCUMENTACIÓN</button>
+                    <button class="option-button" onclick="showResponse(3)">3. FIRMA DIGITAL</button></br>
+                    <button class="option-button" onclick="showResponse(4)">4. OTRAS CONSULTAS</button>
+                `;
+
+            helpMessage.appendChild(optionsContainer);
+
+            document.getElementById("chat").appendChild(helpMessage);
+
+
+        }
+        function showResponse(idPadre, respuesta, esFin) {
+            if (respuesta != null) {
+                showAsk(respuesta)
+                    .then(() => {
+                        var typingIndicator = document.createElement("div");
+                        typingIndicator.className = "message typing-indicator";
+                        typingIndicator.innerHTML = '<img src=\"/Content/img/2923-prints-dark.gif\" style=\"width: 20px;\"> </img>';
+                        document.getElementById("chat").appendChild(typingIndicator);
+                        scrollToBottomSmoothly();
+
+
+                        var urltmp = "/api/ChatBot/buscaRespuestas?idPadre=" + idPadre;
+                        fetch(urltmp, { method: "GET" })
+                            .catch(() => {
+                                console.log("ocurrio un error")
+                            })
+                            .then(res => res.json())
+                            .then(data => {
+
+                                setTimeout(function () {
+                                    var currentDateTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                                    typingIndicator.style.display = "none";
+                                    var obj = data[0].MensajePpal;
+                                    var messageContainer = document.createElement("div");
+                                    messageContainer.className = "message help-message right";
+                                    messageContainer.textContent = obj;
+                                    document.getElementById("chat").appendChild(messageContainer);
+
+                                    var chatContent = document.getElementById("chat");
+                                    var offerOptions = document.querySelector(".offer-options");
+                                    var messageOferta = document.createElement("div");
+                                    messageOferta.className = "options right";
+                                    var opciones = "";
+                                    messageOferta.innerHTML =
+                                        $.each(data, function (index, result) {
+                                            opciones += result.Opcion
+                                            //rellena opciones
+
+                                        });
+                                    messageOferta.innerHTML = opciones;
+                                    messageContainer.appendChild(messageOferta);
+
+                                    document.getElementById("chat").appendChild(messageContainer);
+
+                                    var messageTime = document.createElement("span");
+                                    messageTime.className = "message-time";
+                                    messageTime.textContent = currentDateTime;
+                                    messageContainer.appendChild(messageTime);
+                                    scrollToBottomSmoothly();
+                                    if (idPadre == null) {
+                                        showResponse(data[0].idChat, null, null);//es mensaje inicial
+                                    }
+                                    if (esFin == true) {
+                                        showFin();
+                                    }
+                                }, 3000);
+
+
+                            });
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
+            } else {
+                var typingIndicator = document.createElement("div");
+                typingIndicator.className = "message typing-indicator";
+                typingIndicator.innerHTML = '<img src=\"/Content/img/2923-prints-dark.gif\" style=\"width: 20px;\"> </img>';
+                document.getElementById("chat").appendChild(typingIndicator);
+                scrollToBottomSmoothly();
+
+
+                var urltmp = "/api/ChatBot/buscaRespuestas?idPadre=" + idPadre;
+                fetch(urltmp, { method: "GET" })
+                    .catch(() => {
+                        console.log("ocurrio un error")
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+
+                        setTimeout(function () {
+                            var currentDateTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            typingIndicator.style.display = "none";
+                            var obj = data[0].MensajePpal;
+                            var messageContainer = document.createElement("div");
+                            messageContainer.className = "message help-message right";
+                            messageContainer.textContent = obj;
+                            document.getElementById("chat").appendChild(messageContainer);
+
+                            var chatContent = document.getElementById("chat");
+                            var offerOptions = document.querySelector(".offer-options");
+                            var messageOferta = document.createElement("div");
+                            messageOferta.className = "options right";
+                            var opciones = "";
+                            messageOferta.innerHTML =
+                                $.each(data, function (index, result) {
+                                    opciones += result.Opcion
+                                    //rellena opciones
+
+                                });
+                            messageOferta.innerHTML = opciones;
+                            messageContainer.appendChild(messageOferta);
+
+                            document.getElementById("chat").appendChild(messageContainer);
+
+                            var messageTime = document.createElement("span");
+                            messageTime.className = "message-time";
+                            messageTime.textContent = currentDateTime;
+                            messageContainer.appendChild(messageTime);
+                            scrollToBottomSmoothly();
+                            if (idPadre == null) {
+                                showResponse(data[0].idChat, null, null);//es mensaje inicial
+                            }
+                            if (esFin == true) {
+                                showFin();
+                            }
+
+                        }, 3000);
+
+
+                    });
+            }
+
+
+
+
+        }
+
+
+
+        function showAsk(q) {
+            return new Promise((resolve) => {
+                var typingIndicator = document.createElement("div");
+                typingIndicator.className = "message typing-indicator";
+                typingIndicator.innerHTML = '<img src=\"/Content/img/2923-prints-dark.gif\" style=\"width: 20px;\"> </img>';
+                document.getElementById("chat").appendChild(typingIndicator);
+                scrollToBottomSmoothly();
+                setTimeout(function () {
+                    var currentDateTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    typingIndicator.style.display = "none";
+
+                    var messageContainer = document.createElement("div");
+                    messageContainer.className = "message response-message left";
+                    messageContainer.innerHTML = "<b>Seleccionaste la opción: </b>" + q;
+                    document.getElementById("chat").appendChild(messageContainer);
+
+                    var messageOferta = document.createElement("div");
+                    messageOferta.className = "response-message right";
+                    var opciones = "";
+                    messageOferta.innerHTML = "Seleccionaste la opción: " + q;
+
+                    messageOferta.innerHTML = opciones;
+                    messageContainer.appendChild(messageOferta);
+                    document.getElementById("chat").appendChild(messageContainer);
+
+                    var messageTime = document.createElement("span");
+                    messageTime.className = "message-time";
+                    messageTime.textContent = currentDateTime;
+                    messageContainer.appendChild(messageTime);
+                    scrollToBottomSmoothly();
+                    //showResponse(idPregunta);
+                    resolve();
+                }, 1000);
+            });
+        }
+        function showFin() {
+            return new Promise((resolve) => {
+                var typingIndicator = document.createElement("div");
+                typingIndicator.className = "message help-message right";
+                typingIndicator.innerHTML = '<img src=\"/Content/img/2923-prints-dark.gif\" style=\"width: 20px;\"> </img>';
+                document.getElementById("chat").appendChild(typingIndicator);
+                scrollToBottomSmoothly();
+                setTimeout(function () {
+                    var currentDateTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    typingIndicator.style.display = "none";
+                    var messageContainer = document.createElement("div");
+                    messageContainer.className = "message help-message right";
+                    messageContainer.textContent = "Pudiste resolver tus dudas?";
+                    document.getElementById("chat").appendChild(messageContainer);
+
+                    var messageOferta = document.createElement("div");
+                    messageOferta.className = "help-message left";
+                    var opciones = `
+                            <button class="option-button" onclick="SaludoFinal()">Si</button>
+                            <button class="option-button" onclick="SaludoFinalNoResuelve()">No</button>
+                            <button class="option-button" onclick="showResponse(null,'Comencemos de nuevo!', null )">Menu Principal</button>
+
+                        `;
+                    //messageOferta.innerHTML = "Seleccionaste la opción: " + q;
+
+                    messageOferta.innerHTML = opciones;
+                    messageContainer.appendChild(messageOferta);
+                    document.getElementById("chat").appendChild(messageContainer);
+
+                    var messageTime = document.createElement("span");
+                    messageTime.className = "message-time";
+                    messageTime.textContent = currentDateTime;
+                    messageContainer.appendChild(messageTime);
+                    scrollToBottomSmoothly();
+                    //showResponse(idPregunta);
+                    resolve();
+
+
+                }, 3000);
+            });
+        }
+        function SaludoFinal() {
+            var typingIndicator = document.createElement("div");
+            typingIndicator.className = "message help-message right";
+            typingIndicator.innerHTML = '<img src=\"/Content/img/2923-prints-dark.gif\" style=\"width: 20px;\"> </img>';
+            document.getElementById("chat").appendChild(typingIndicator);
+            scrollToBottomSmoothly();
+            setTimeout(function () {
+                var currentDateTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                typingIndicator.style.display = "none";
+                var messageContainer = document.createElement("div");
+                messageContainer.className = "message help-message right";
+                messageContainer.textContent = "Estoy acá para ayudarte. Hablamos la próxima ​👋 ​ ¡Saludos!";
+                document.getElementById("chat").appendChild(messageContainer);
+
+
+
+                var messageTime = document.createElement("span");
+                messageTime.className = "message-time";
+                messageTime.textContent = currentDateTime;
+                messageContainer.appendChild(messageTime);
+                scrollToBottomSmoothly();
+                //showResponse(idPregunta);
+
+                setTimeout(function () {
+                    cerrarChat();
+
+
+                }, 3000);
+
+            }, 3000);
+
+
+        }
+
+        function SaludoFinalNoResuelve() {
+            var typingIndicator = document.createElement("div");
+            typingIndicator.className = "message help-message right";
+            typingIndicator.innerHTML = '<img src=\"/Content/img/2923-prints-dark.gif\" style=\"width: 20px;\"> </img>';
+            document.getElementById("chat").appendChild(typingIndicator);
+            scrollToBottomSmoothly();
+            setTimeout(function () {
+                var currentDateTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                typingIndicator.style.display = "none";
+                var messageContainer = document.createElement("div");
+                messageContainer.className = "message help-message right";
+                messageContainer.textContent = "Lo lamentamos! Te invitamos a dejar un mensaje al sector por cualquier duda y/o sugerencia.";
+                document.getElementById("chat").appendChild(messageContainer);
+
+
+
+                var messageTime = document.createElement("span");
+                messageTime.className = "message-time";
+                messageTime.textContent = currentDateTime;
+                messageContainer.appendChild(messageTime);
+                scrollToBottomSmoothly();
+                //showResponse(idPregunta);
+
+                setTimeout(function () {
+                    cerrarChat();
+                    showModal();
+
+                }, 6000);
+
+            }, 3000);
+
+
+        }
+
+        //primer nivel de respuestas a pregunta 1
+        function selectOptionLevel1(option) {
+
+            var typingIndicator = document.createElement("div");
+            typingIndicator.className = "message typing-indicator";
+            typingIndicator.innerHTML = '<img src=\"/Content/img/2923-prints-dark.gif\" style=\"width: 20px;\"> </img>';
+            document.getElementById("chat").appendChild(typingIndicator);
+
+            var currentDateTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            var urltmp = "/api/Acta/EditarActa?idObra=" + idObra;
+            fetch(urltmp, { method: "GET" })
+                .catch(() => {
+                    console.log("ocurrio un error")
+                })
+                .then(res => res.json())
+                .then(data => {
+                    typingIndicator.style.display = "none";
+                    var messageContainer = document.createElement("div");
+                    messageContainer.className = "message help-message right";
+                    messageContainer.textContent = "Conozco mucho sobre " + option + ". Puedo ayudarte con todo esto: ";
+                    document.getElementById("chat").appendChild(messageContainer);
+
+
+
+                    var chatContent = document.getElementById("chat");
+                    var offerOptions = document.querySelector(".offer-options");
+                    var messageOferta = document.createElement("div");
+                    messageOferta.className = "options right";
+                    var opciones = "";
+                    messageOferta.innerHTML =
+                        $.each(data, function (index, result) {
+                            //rellena opciones
+
+                        });
+                    messageOferta.innerHTML = opciones;
+                    messageContainer.appendChild(messageOferta);
+
+                    document.getElementById("chat").appendChild(messageContainer);
+                });
+            //setTimeout(function () {
+            //    typingIndicator.style.display = "none";
+            //    var messageContainer = document.createElement("div");
+            //    messageContainer.className = "message help-message right";
+            //    messageContainer.textContent = "Conozco mucho sobre " + option + ". Puedo ayudarte con todo esto: ";
+            //    document.getElementById("chat").appendChild(messageContainer);
+
+            //    var chatContent = document.getElementById("chat");
+            //    var offerOptions = document.querySelector(".offer-options");
+
+            //    if (option == "OFERTA ECONÓMICA") {
+            //        // El usuario seleccionó "Oferta Económica"
+            //        var messageOferta = document.createElement("div");
+            //        messageOferta.className = "options right";
+            //        messageOferta.innerHTML =
+            //            "<button class=\"option-button\" onclick=\"mostrarRespuestaOferta('SubirOferta')\">¿Cómo subir una oferta?</button>" +
+            //            "<button class=\"option-button\" onclick=\"mostrarRespuestaOferta('AntesDespues')\">La oferta, ¿la subo antes o después de la presentación de la oferta?</button>" +
+            //            "<button class=\"option-button\" onclick=\"mostrarRespuestaOferta('PresentacionSistema')\">La oferta económica, ¿se presenta por sistema?</button>"
+            //            "<button class=\"option-button\" onclick=\"mostrarRespuestaOferta('MenuPpal')\">Volver a Menú Principal</button>"
+
+            //            ;
+            //        messageContainer.appendChild(messageOferta);
+
+            //        document.getElementById("chat").appendChild(messageContainer);
+            //    }else
+            //        if (option == "PRESENTACIÓN DE DOCUMENTACIÓN") {
+            //            // El usuario seleccionó "PRESENTACIÓN DE DOCUMENTACIÓN"
+            //            var messageOferta = document.createElement("div");
+            //            messageOferta.className = "options right";
+            //            messageOferta.innerHTML =
+            //                "<button class=\"option-button\" onclick=\"mostrarRespuestaPresentacion('Password')\">¿Cómo puedo ponerle contraseñana los archivos a subir?</button>" +
+            //                "<button class=\"option-button\" onclick=\"mostrarRespuestaPresentacion('Modificarlo')\">Si he subido un archivo, ¿cómo puedo modificarlo si ya presenté la oferta?</button>" +
+            //                "<button class=\"option-button\" onclick=\"mostrarRespuestaPresentacion('MenuPpal')\">Volver a Menú Principal</button>"
+            //                ;
+            //            messageContainer.appendChild(messageOferta);
+
+            //            document.getElementById("chat").appendChild(messageContainer);
+            //        } else
+
+            //            if (option == "FIRMA DIGITAL") {
+            //            // El usuario seleccionó "FIRMA DIGITAL"
+            //            var messageOferta = document.createElement("div");
+            //            messageOferta.className = "options right";
+            //            messageOferta.innerHTML =
+            //                "<button class=\"option-button\" onclick=\"mostrarRespuestaFD('ComoFirmo')\">¿Cómo firmo un documento digitalmente?</button>" +
+            //                "<button class=\"option-button\" onclick=\"mostrarRespuestaFD('ModificarDoc')\">Si he subido un archivo, ¿cómo puedo modificarlo si ya presenté la oferta?</button>" +
+            //                "<button class=\"option-button\" onclick=\"mostrarRespuestaFD('MenuPpal')\">Volver a Menú Principal</button>"
+            //                ;
+            //            messageContainer.appendChild(messageOferta);
+
+            //            document.getElementById("chat").appendChild(messageContainer);
+            //        }
+
+            //    else {
+            //        offerOptions.style.display = "none";
+            //    }
+
+            //}, 3000); // 3000 milisegundos (3 segundos)
+
+
+
+
+        }
+
+        // Iniciar la secuencia de mensajes al cargar la página
+        //showTypingIndicator();
+        function configurar() {
+            window.location.href = "/Licitacion/chatbot";
+        }
+        function cerrarChat() {
+            // Oculta el contenido del chat
+            document.getElementById("chat").style.display = "none";
+
+            // Reinicia el contenido del chat
+            var chatContent = document.getElementById("chat");
+            chatContent.innerHTML = '';
+            //showTypingIndicator();
+            // Muestra el contenido del chat y reactiva el botón de mostrarMensaje
+            var modal = document.getElementById("modal-popup-mensaje");
+            var imageContainer = document.querySelector(".image");
+
+
+            chatContent.style.display = "block";
+            modal.style.display = "none";
+            imageContainer.classList.remove("chatImage");
+        }
+
+        //segundo nivel de respuestas a pregunta
+        function mostrarRespuestaOferta(opcion) {
+            var typingIndicator = document.createElement("div");
+            typingIndicator.className = "message typing-indicator";
+            typingIndicator.innerHTML = '<img src=\"/Content/img/2923-prints-dark.gif\" style=\"width: 20px;\"> </img>';
+            document.getElementById("chat").appendChild(typingIndicator);
+
+            var chatContent = document.getElementById("chat");
+            setTimeout(function () {
+                typingIndicator.style.display = "none";
+                var messageContainerOferta = document.createElement("div");
+                messageContainerOferta.className = "message help-message right";
+                messageContainerOferta.textContent = "Puedo contarte sobre " + option + "con: <<<Respuestas>>>";
+                document.getElementById("chat").appendChild(messageContainerOferta);
+
+                var offerOptions = document.querySelector(".offer-options");
+
+                if (option == "SubirOferta") {
+                    // El usuario seleccionó "Oferta Económica"
+                    var messageSubirOferta = document.createElement("div");
+                    messageSubirOferta.className = "options right";
+                    messageSubirOferta.innerHTML =
+                        "<button class=\"option-button\" onclick=\"mostrarRespuestaOkEntendido('SubirOferta')\">Ok, Entendido</button>" +
+                        "<button class=\"option-button\" onclick=\"mostrarRespuestaOtrasOpciones('AntesDespues')\">Ver otras opciones</button>" +
+                        "<button class=\"option-button\" onclick=\"mostrarRespuestaMenuPpal('PresentacionSistema')\">Menú Principal</button>"
+                        ;
+                    messageContainerOferta.appendChild(messageSubirOferta);
+
+                    document.getElementById("chat").appendChild(messageContainerOferta);
+                } else {
+                    offerOptions.style.display = "none";
+                }
+
+            }, 3000); // 3000 milisegundos (3 segundos)
+
+
+        }
+        function showModal() {
+            // ... Otras lógicas ...
+
+
+            $('#commentModal').css("display", "block"); // Abre el modal del chatbot
+
+        }
+        function enviarComentario() {
+            
+                var urlGrabar = "/api/ChatBot/guardarComentario";
+                fetch(urlGrabar, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        comentario: $('#commentText').val(),
+                        
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        cerrarModalChatbot();
+                        $('#modal-Comentario').css("display", "block");
+                        setTimeout(function () {
+                            $('#modal-Comentario').css("display", "none");
+                        }, 2000);
+                    })
+                    .catch(error => {
+                        // Logica Error
+                        console.log('Error')
+                        alert('Hubo un error al guardar el comentario.');
+                        console.log(error)
+                    })
+            
+
+        }
+        function cerrarModalChatbot() {
+            $('#commentModal').css("display", "none");
+        }
+        function irTicket() {
+            window.open('https://ticketsform.mendoza.gov.ar/ticketsform/com.tickets.responderformulario?MIPIP_SIST_INFORMATICOS', '_blank')
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,307 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+@using System.Web.Optimization
+@using System.Web.Mvc.Html;
+
+@{
+    var idEmpresa2 = Session["idEmpresa"];
+    var tipoEmpresa = Session["tipoEmpresa"];
+}
+<title>Configuración de Chatbot</title>
+
+<!-- Select2 -->
+<link rel="stylesheet" href="~/AdminLte/plugins/select2/css/select2.min.css">
+<link rel="stylesheet" href="~/AdminLte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+
+<style>
+    .dataTables_length {
+        display: none !important;
+    }
+
+    .d-hotline {
+        color: #ffffff !important;
+        border-color: transparent #dc213c transparent transparent;
+    }
+
+        .d-hotline.h-btn #chat-icon {
+            border-radius: 6px 6px 6px 2px;
+            height: 17px;
+            left: 32%;
+            position: absolute;
+            top: 37%;
+            width: 38%;
+        }
+
+        .d-hotline.h-btn #chat-icon {
+            border-radius: 6px 6px 6px 2px;
+            height: 17px;
+            left: 32%;
+            position: absolute;
+            top: 37%;
+            width: 38%;
+        }
+
+    #chat-icon {
+        background: #ffffff !important;
+    }
+
+    .chatImage {
+        z-index: 9999;
+        position: fixed; /* Fijar el contenedor en la pantalla */
+        /*top: 74%;*/ /* Posicionar en la mitad vertical */
+        transform: translate(-28%, -55%); /* Centrar el contenedor */
+    }
+    #comentarios .table th {
+        width: 33.33%; /* Asigna un tercio del ancho a cada columna */
+    }
+</style>
+<div class="container-fluid" style="font-size: smaller !important;">
+
+    <div class="container-fluid">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">Configuraciones</li>
+            <li class="breadcrumb-item active">Chatbot</li>
+        </ol>
+        <button type="button" class="btn btn-primary mb-2" onclick="volver()">Volver</button>
+
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="escenarios-tab" data-toggle="tab" href="#escenarios" role="tab" aria-controls="escenarios" aria-selected="true">Escenarios</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="comentarios-tab" data-toggle="tab" href="#comentarios" role="tab" aria-controls="comentarios" aria-selected="false">Comentarios</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="escenarios" role="tabpanel" aria-labelledby="escenarios-tab">
+                <div class="box-header with-border">
+                    <div class="card-body">
+                        <table id="tablaChatbot" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Nombre Escenario</th>
+                                    <th class="text-center">Sector</th>
+                                    <th class="text-center">Descripción</th>
+                                    <th class="text-center">Activo</th>
+                                    <th class="text-center">Acciones</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+            <div class="tab-pane fade" id="comentarios" role="tabpanel" aria-labelledby="comentarios-tab">
+                <div class="box-header with-border">
+                    <div class="card-body">
+                        <table id="tablaComentarios" class="table table-bordered table-striped">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 30%;" >Nombre Usuario</th>
+                                    <th class="text-center" style="width: 30%;">Fecha/Hora Comentario</th>
+                                    <th class="text-center" style="width: 60%;">Comentario</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts
+{
+    <!-- Select2 -->
+    <script src="~/AdminLte/plugins/select2/js/select2.full.min.js"></script>
+    <!-- InputMask -->
+    <script src="~/AdminLte/plugins/moment/moment.min.js"></script>
+    <script src="~/AdminLte/plugins/inputmask/jquery.inputmask.min.js"></script>
+    <script src="~/AdminLte/plugins/datatables/jquery.dataTables.min.js"></script>
+    <link href="~/Content/DataTables2/datatables.min.css" rel="stylesheet" />
+
+    <script defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt2jI1l4WNHLIxPoa4SA5X42eInw2NaOc&libraries=drawing&callback=initMap">
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                // Recalcula el diseño de la tabla cuando se activa la pestaña
+                $('#tablaComentarios').DataTable().columns.adjust().draw();
+            });
+        });
+        $('.select2').select2();
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        });
+        buscar();
+        function volver() {
+           
+            window.history.back();
+        }
+        function buscar() {
+            //alert("@idEmpresa2")
+            if ("@tipoEmpresa" == 1) {
+                $('#tablaChatbot').DataTable().destroy();
+                $('#tablaComentarios').DataTable().destroy();
+                var url = "/api/ChatBot/buscarEscenarios";
+
+                cargarTabla(url);
+
+                var urlComentario = "/api/ChatBot/buscarComentarios";
+
+                cargarTablaComentarios(urlComentario);
+                
+            }
+            else {
+                window.location.href = "/Login/Login/AccesoDenegado";
+            }
+        };
+        function cargarTabla(url) {
+
+            var table = $("#tablaChatbot").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "stateSave": true,
+                "language": {
+                    "processing": "Procesando"
+                },
+                "scrollY": "500px",
+                "scrollCollapse": true,
+                "ajax": {
+                    "url": url,
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "pageLength": 50,
+                "filter": false,
+                "responsivePriority": 2, //define que columna es la que se estira
+                "data": null,
+                "columns": [
+                    {
+                        "data": "nombreEscenario", "name": "nombreEscenario", "autoWidth": true,
+                        render: function (data, type, row, meta) {
+                            //return "<div onclick='mostrarPopup(" + row.idCliente + ")' style='cursor:pointer;'>" + data + "</div>"
+                            return "<div style='text-align: left;'>" + data + "</div>"
+                        }
+                    },
+                    {
+                        "data": "sector", "name": "Sector", "autoWidth": true,
+                        render: function (data, type, row, meta) {
+                            return "<div style='text-align: left;'>" + data + "</div>"
+                        }
+                    },
+                    {
+                        "data": "descripcion", "name": "Descripcion", "autoWidth": true,
+                        render: function (data, type, row, meta) {
+                            return "<div style='text-align: left;'>" + data + "</div>"
+                        }
+                    },
+                    {
+                        "data": "activo", "name": "Activo", "autoWidth": true,
+                        render: function (data, type, row, meta) {
+                            return "<div style='text-align: left;'>" + data + "</div>"
+                        }
+                    },
+
+                    {
+                        "data": "accion", "name": "Acciones", "autoWidth": true,
+                        render: function (data, type, row, meta) {
+                            if (row.activo == "Activo") {
+                                return "<div style='text-align: center;'><i class='fas fa-edit' title='Editar Escenario' style='text-align: center;cursor:pointer; color: green;' onclick='redirigir(" + row.idEscenario + ")'></i>&nbsp;&nbsp;<i class='fa fa-trash' title='Desactivar Arbol' style='text-align: center;cursor:pointer; color: red;' onclick='activar(" + row.idEscenario + ")'></i>&nbsp;&nbsp;</div>"
+                            }
+                            else {
+                                return "<div style='text-align: center;'><i class='fas fa-edit' title='Editar Escenario' style='text-align: center;cursor:pointer; color: green;' onclick='redirigir(" + row.idEscenario + ")'></i>&nbsp;&nbsp;<i class='fa  fa-reply' title='Activar Arbol' style='text-align: center;cursor:pointer; color: red;' onclick='eliminar(" + row.idEscenario + ")'></i>&nbsp;&nbsp;</div>"
+                            }
+                        }
+                    },
+                ],
+            });
+        }
+        function cargarTablaComentarios(url) {
+
+            var table = $("#tablaComentarios").DataTable({
+                "processing": true,
+                "serverSide": true,
+                "stateSave": true,
+                "language": {
+                    "processing": "Procesando"
+                },
+                "scrollY": "500px",
+                "scrollCollapse": true,
+                "ajax": {
+                    "url": url,
+                    "type": "POST",
+                    "datatype": "json"
+                },
+                "pageLength": 50,
+                "filter": false,
+                "responsivePriority": 2, //define que columna es la que se estira
+                "data": null,
+                "columns": [
+                    {
+                        "data": "nombreUsuario", "name": "nombreUsuario", "autoWidth": true,
+                        render: function (data, type, row, meta) {
+                            //return "<div onclick='mostrarPopup(" + row.idCliente + ")' style='cursor:pointer;'>" + data + "</div>"
+                            return "<div style='text-align: left;'>" + data + "</div>"
+                        }
+                    },
+                    {
+                        "data": "fechaHora", "name": "fechaHora", "autoWidth": true,
+                        render: function (data, type, row, meta) {
+                            var fecha = parsearFecha(data)
+                            return "<div style='text-align: left;'>" + fecha + "</div>"
+                        }
+                    },
+                    {
+                        "data": "comentario", "name": "comentario", "autoWidth": true,
+                        render: function (data, type, row, meta) {
+                            return "<div style='text-align: left;'>" + data + "</div>"
+                        }
+                    },
+                   
+                ],
+            });
+        }
+        function redirigir(idEscenario) {
+            window.location.href = '/Licitacion/Chatbot/EditarArbol?idEscenario=' + idEscenario;
+        }
+        function parsearFecha(fecha) {
+            var fechaNormal = new Date(fecha);
+            var dia = fechaNormal.getDate();
+            var mes = fechaNormal.getMonth() + 1; 
+            var año = fechaNormal.getFullYear();
+            var horas = fechaNormal.getHours();
+            var minutos = fechaNormal.getMinutes();
+            var segundos = fechaNormal.getSeconds();
+
+            return fechaFormateada = `${dia}/${mes}/${año} ${horas}:${minutos}:${segundos}`;
+        }
+        function eliminar(idEscenario) {
+            var urlGrabar = "/api/ChatBot/activarDesactivar?idEscenario=" + idEscenario;
+            fetch(urlGrabar, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+
+            })
+                .then(res => res.json())
+                .then(data => {
+                    buscar();
+                })
+                .catch(error => {
+                    // Logica Error
+                    console.log('Error')
+                    alert('Hubo un error al eliminar.');
+                    console.log(error)
+                })
+        }
+    </script>
+}

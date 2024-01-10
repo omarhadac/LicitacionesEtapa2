@@ -1,0 +1,955 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+@using System.Web.Optimization
+@using System.Web.Mvc.Html;
+
+@{
+    var idEmpresa2 = Session["idEmpresa"];
+    var tipoEmpresa = Session["tipoEmpresa"];
+    var idEscenario = @ViewBag.idEscenario;
+}
+<title>Configurar Chatbot</title>
+
+<!-- Select2 -->
+<link rel="stylesheet" href="~/AdminLte/plugins/select2/css/select2.min.css">
+<link rel="stylesheet" href="~/AdminLte/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css">
+<style>
+    /* RESET STYLES & HELPER CLASSES
+    –––––––––––––––––––––––––––––––––––––––––––––––––– */
+    :root {
+        --level-1: #8dccad;
+        --level-2: #f5cc7f;
+        --level-3: #7b9fe0;
+        --level-4: #f27c8d;
+        --black: black;
+    }
+
+    * {
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    ol {
+        list-style: none;
+    }
+
+    /*body {
+        margin: 50px 0 100px;
+        text-align: center;
+        font-family: "Inter", sans-serif;
+    }*/
+
+    .container {
+        max-width: 1000px;
+        padding: 0 10px;
+        margin: 0 auto;
+    }
+
+    .rectangle {
+        position: relative;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+
+    /* LEVEL-1 STYLES
+    –––––––––––––––––––––––––––––––––––––––––––––––––– */
+    .level-1 {
+        width: 50%;
+        margin: 0 auto 40px;
+        background: var(--level-1);
+    }
+
+        .level-1::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 20px;
+            background: var(--black);
+        }
+
+
+    /* LEVEL-2 STYLES
+    –––––––––––––––––––––––––––––––––––––––––––––––––– */
+    .level-2-wrapper {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+        .level-2-wrapper::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: 25%;
+            width: 50%;
+            height: 2px;
+            background: var(--black);
+        }
+
+        .level-2-wrapper::after {
+            display: none;
+            content: "";
+            position: absolute;
+            left: -20px;
+            bottom: -20px;
+            width: calc(100% + 20px);
+            height: 2px;
+            /*background: var(--black);*/
+        }
+
+        .level-2-wrapper li {
+            position: relative;
+        }
+
+        .level-2-wrapper > li::before {
+            content: "";
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 20px;
+            background: var(--black);
+        }
+
+    .level-2 {
+        width: 70%;
+        margin: 0 auto 40px;
+        background: var(--level-2);
+    }
+
+        .level-2::before {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 153px;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 20px;
+            background: var(--black);
+        }
+
+        .level-2::after {
+            display: none;
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            transform: translate(-100%, -50%);
+            width: 20px;
+            height: 2px;
+            background: var(--black);
+        }
+
+
+    /* LEVEL-3 STYLES
+    –––––––––––––––––––––––––––––––––––––––––––––––––– */
+    .level-3-wrapper {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-column-gap: 20px;
+        width: 90%;
+        margin: 0 auto;
+    }
+
+        .level-3-wrapper::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: calc(25% - 5px);
+            width: calc(50% + 10px);
+            height: 2px;
+            background: var(--black);
+        }
+
+        .level-3-wrapper > li::before {
+            /*content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translate(-50%, -100%);
+            width: 2px;
+            height: 20px;
+            background: var(--black);*/
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            transform: translate(-100%, -50%);
+            width: 20px;
+            height: 2px;
+            background: var(--black);
+        }
+
+    .level-3 {
+        margin-bottom: 20px;
+        background: var(--level-3);
+    }
+
+        .level-3::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            transform: translate(-100%, -50%);
+            width: 20px;
+            height: 2px;
+            background: var(--black);
+        }
+
+
+    /* LEVEL-4 STYLES
+    –––––––––––––––––––––––––––––––––––––––––––––––––– */
+    .level-4-wrapper {
+        position: relative;
+        width: 80%;
+        margin-left: auto;
+    }
+
+        .level-4-wrapper::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: -20px;
+            width: 2px;
+            height: calc(100% + 20px);
+            background: var(--black);
+        }
+
+        .level-4-wrapper li + li {
+            margin-top: 20px;
+        }
+
+    .level-4 {
+        font-weight: normal;
+        background: var(--level-4);
+    }
+
+        .level-4::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0%;
+            transform: translate(-100%, -50%);
+            width: 20px;
+            height: 2px;
+            background: var(--black);
+        }
+
+
+    /* MQ STYLES
+    –––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+    .rectangle {
+        padding: 20px 10px;
+    }
+
+    .level-1,
+    .level-2 {
+        width: 100%;
+    }
+
+    .level-1 {
+        margin-bottom: 20px;
+    }
+
+        .level-1::before,
+        .level-2-wrapper > li::before {
+            display: none;
+        }
+
+    .level-2-wrapper,
+    .level-2-wrapper::after,
+    .level-2::after {
+        display: block;
+    }
+
+    .level-2-wrapper {
+        width: 90%;
+        margin-left: 10%;
+    }
+
+        .level-2-wrapper::before {
+            left: -20px;
+            width: 2px;
+            height: calc(100% + 40px);
+        }
+
+        .level-2-wrapper > li:not(:first-child) {
+            margin-top: 50px;
+        }
+
+
+
+    /* FOOTER
+    –––––––––––––––––––––––––––––––––––––––––––––––––– */
+    .page-footer {
+        position: fixed;
+        right: 0;
+        bottom: 20px;
+        display: flex;
+        align-items: center;
+        padding: 5px;
+    }
+
+        .page-footer a {
+            margin-left: 4px;
+        }
+
+    .icons {
+        display: flex;
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        padding-bottom: 10px;
+    }
+
+    .iconsTitle {
+        display: flex;
+        position: absolute;
+        top: 160px;
+        right: 160px;
+        color: #000;
+    }
+
+        .iconsTitle a {
+            margin-left: 5px;
+            text-decoration: none;
+            color: #000;
+        }
+
+    .icons a {
+        margin-left: 5px;
+        text-decoration: none;
+        color: #000;
+    }
+</style>
+<style>
+    .fa-eraser:hover {
+        cursor: pointer;
+    }
+    .modal {
+        position: fixed;
+        top: 0;
+        left: 18%;
+        z-index: 1050;
+        display: none;
+        width: 80%;
+        height: 80%;
+        overflow: hidden;
+        outline: 0;
+    }
+    .bg-light-blue, .label-primary, .modal-primary .modal-body {
+        background-color: #3c8dbc !important;
+        color: #fff !important;
+    }
+
+
+    .bg-yellow, .callout.callout-warning, .alert-warning, .label-warning, .modal-warning .modal-body {
+        background-color: #f39c12 !important;
+        color: #fff !important;
+    }
+
+    .panel {
+        margin-bottom: 2px !important;
+        background-color: #fff;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    }
+
+    .panel-info > .panel-heading {
+        color: white;
+        background-color: #5bc0de;
+        border-color: #5bc0de;
+    }
+
+    .panel-info > .panel-heading-left {
+        background-color: #5f2571;
+        border-color: #5f2571;
+    }
+
+    .panel-body {
+        padding: 0px 0px !important;
+        margin-bottom: 0rem !important;
+    }
+
+    hr {
+        height: 1px;
+        background-color: #009BDB;
+    }
+
+    h4.title-item {
+        font-size: 1em;
+        font-weight: bold;
+    }
+
+    .text-muted {
+        color: #777;
+    }
+
+    .text-item {
+        font-size: .95em;
+        text-align: justify;
+    }
+
+    .no-margin {
+        margin: 0 !important;
+    }
+
+    .pagination > li {
+        display: inline;
+    }
+
+    .pagination {
+        display: inline-block;
+        padding-left: 0;
+        margin: 20px 0;
+        border-radius: 4px;
+    }
+
+    .pull-right {
+        float: right !important;
+    }
+
+    .pagination > li > a {
+        background: #fafafa;
+        color: #666;
+    }
+
+    .pagination-sm > li > a, .pagination-sm > li > span {
+        padding: 5px 10px;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    span.badge-round {
+        display: inline-block;
+        height: 50px;
+        line-height: 50px;
+        width: 75px;
+        font-size: 12px;
+        font-weight: bold;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        border-radius: 30px;
+    }
+
+    .badge {
+        display: inline-block;
+        min-width: 10px;
+        padding: 3px 7px;
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 1;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        background-color: #777;
+        border-radius: 10px;
+    }
+
+    .badgeHover {
+        color: #666;
+        display: inline-block;
+        min-width: 10px;
+        padding: 3px 7px;
+        font-size: 12px;
+        font-weight: bold;
+        line-height: 1;
+        color: #fff;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        background-color: #777;
+        border-radius: 10px;
+    }
+
+    [data-title]:hover:after {
+        opacity: 1;
+        transition: all 0.1s ease 0.5s;
+        visibility: visible;
+    }
+
+    [data-title]:after {
+        content: attr(data-title);
+        position: absolute;
+        bottom: -1.6em;
+        left: 100%;
+        padding: 4px 4px 4px 8px;
+        color: #222;
+        white-space: nowrap;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        -moz-box-shadow: 0px 0px 4px #222;
+        -webkit-box-shadow: 0px 0px 4px #222;
+        box-shadow: 0px 0px 4px #222;
+        opacity: 0;
+        z-index: 99999;
+        visibility: hidden;
+        color: white;
+        background-color: black;
+        font-family: "Source Sans Pro",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    }
+
+    [data-title] {
+        position: relative;
+    }
+
+    .select2-selection__choice {
+        background-color: dodgerblue !important;
+    }
+
+    .select2-results__option {
+        font-size: smaller !important;
+    }
+
+    .select2-selection__choice__remove {
+        color: white !important;
+    }
+</style>
+<div class="container-fluid" style="font-size: smaller !important;">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">Chatbot</li>
+        <li class="breadcrumb-item active">Arbol Decisiones</li>
+    </ol>
+    <button type="button" class="btn btn-primary mb-2" onclick="volver()">Volver</button>
+
+</div>
+<div class="container">
+    <div class="modal modal-default" id="modal-Comentario" style="display: none!important;">
+    <div class="modal-dialog">
+        <div class="modal-content bg-success">
+            <div class="modal-body">
+                <p>Se realizó registro en el árbol.</p>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+    <div class="modal modal-default" id="modal-popup-escenario" style="display: none!important; margin-top: 0%;">
+        <div class="modal-dialog" style="margin-left: 1%;margin-top: 1%; margin-right: 1%;max-width: 98%!important;" id="modal-obra">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label for="selectEscenario">Tipo Escenario/Pregunta:</label>
+                            <select class="form-control" id="selectTipo">
+                                <!-- Opciones para Escenario -->
+                                <option value="0">Escenario</option>
+                                <option value="1">Tópico</option>
+                                <option value="2">Pregunta</option>
+                                <option value="3">Respuesta</option>
+                                <!-- Agrega más opciones según sea necesario -->
+                            </select>
+                        </div>
+                        @*<div class="form-group">
+            <label for="inputTitulo">Título:</label>
+            <input type="text" class="form-control" id="inputTitulo">
+        </div>*@
+                        <div class="form-group">
+                            <label for="selectEscenario">Tipo:</label>
+                            <select class="form-control" id="selectTipoRespuesta">
+                                <!-- Opciones para Escenario -->
+                                <option value="0">Botón</option>
+                                <option value="1">Respuesta Texto</option>
+
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputDescripcion">Título/Respuesta:</label>
+                            <textarea class="form-control" id="inputDescripcion" rows="5"></textarea>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" id="esFinArbol"> ¿Es el fin de la rama de preguntas? (al estar activo se mostrará saludo final y comentario)
+                            </label>
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+                    </div>
+                    <div class="row" style="margin-top: 5px;" id="divBotoneraPopupObra">
+                        <button class="btn btn-danger" onclick="cierraPopupEscenario()" style="margin-left: 1%;">Cerrar</button>
+                        <button class="btn btn-success" onclick="guardar()" style="color:white;margin-left: 1%;">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-default" id="modal-confirmar-eliminacion" style="display: none!important; margin-top: 0%;">
+        <div class="modal-dialog" style="margin-left: 1%;margin-top: 1%; margin-right: 1%;max-width: 98%!important;" id="modal-eliminar">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <div class="panel-body">
+                        <p>¿Está seguro de que quiere eliminar?</p>
+                    </div>
+                    <div class="row" style="margin-top: 5px;">
+                        <button class="btn btn-danger" id="btnEliminar" onclick="eliminar()">Sí</button>
+                        <button class="btn btn-primary" id="btnCancelarEliminar" onclick="cierraPopupElimina()">No</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+   
+</div>
+
+@*<footer class="page-footer">
+        <span>made by </span>
+        <a href="https://georgemartsoukos.com/" target="_blank">
+            <img width="24" height="24" src="https://assets.codepen.io/162656/george-martsoukos-small-logo.svg" alt="George Martsoukos logo">
+        </a>
+    </footer>*@
+
+@section Scripts
+{
+    <!-- Select2 -->
+    <script src="~/AdminLte/plugins/select2/js/select2.full.min.js"></script>
+    <!-- InputMask -->
+    <script src="~/AdminLte/plugins/moment/moment.min.js"></script>
+    <script src="~/AdminLte/plugins/inputmask/jquery.inputmask.min.js"></script>
+    <script src="~/AdminLte/plugins/datatables/jquery.dataTables.min.js"></script>
+    <link href="~/Content/DataTables2/datatables.min.css" rel="stylesheet" />
+
+    <script defer
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAt2jI1l4WNHLIxPoa4SA5X42eInw2NaOc&libraries=drawing&callback=initMap">
+    </script>
+
+    <script>
+        //$("#txtPopupPreguntas").summernote('editor.pasteHTML', '');
+        function volver() {
+         
+            window.history.back();
+        }
+        $('.select2').select2();
+        $('.select2bs4').select2({
+            theme: 'bootstrap4'
+        });
+        buscar();
+
+        function buscar() {
+            //alert("@idEmpresa2")
+            if ("@tipoEmpresa" == 1) {
+               //todo ok
+            }
+            else {
+                window.location.href = "/Login/Login/AccesoDenegado";
+            }
+        };
+        $('#levantaPopupEdit').click(function () {
+            $('#modal-popup-escenario').css("display", "block");
+        });
+        function abrePopupEscenario(id, tipo, padre) {
+            idPadre = padre;
+            if (id > 0) {
+                $('#selectTipo').prop('disabled', true);
+                idChat = id;
+            }
+            if (tipo == 1) {
+                
+                $('#selectTipo').prop('selectedIndex', 0);
+            }
+            if (tipo == 2) {
+
+                $('#selectTipo').prop('selectedIndex', 1);
+            }
+            if (tipo == 3) {
+
+                $('#selectTipo').prop('selectedIndex', 2);
+            }
+            if (tipo == 4) {
+
+                $('#selectTipo').prop('selectedIndex', 3);
+            }
+            //alert(id)
+            fetch('/api/ChatBot/buscarUnaPregunta?idPregunta=' + id, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    $('#inputDescripcion').val(data.TituloPpal)
+                    $('#modal-popup-escenario').css("display", "block");
+                    if (data.tipo == 2) {
+                        $('#selectTipoRespuesta').prop('selectedIndex', 0);
+                    } else {
+                        $('#selectTipoRespuesta').prop('selectedIndex', 1);
+                    }
+                    console.log(data)
+                })
+                .catch(error => console.error('Error:', error));
+            
+        }
+        function cierraPopupEscenario() {
+            $('#modal-popup-escenario').css("display", "none");
+            $('#selectTipo').prop('disabled', false);
+            $('#selectTipo').prop('selectedIndex', 0);
+            $('#inputDescripcion').val('');
+            $('#selectTipoRespuesta').val();
+            idChat = 0;
+            idPadre = 0;
+        }
+        var idChat = 0;
+        var idPadre = 0;
+        function guardar() {
+            //alert($('#selectTipo').val());
+            var esFin = 0;
+            var isChecked = $('#esFinArbol').prop('checked');
+            if (isChecked) {
+                esFin = 1;
+            }
+            var urlGrabar = "/api/ChatBot/guardarChat";
+            fetch(urlGrabar, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    MensajePpal: $('#inputDescripcion').val(),
+                    tipoPregunta: $('#selectTipo').val(),
+                    tipo: $('#selectTipoRespuesta').val(),
+                    esFin: esFin,
+                    idPadre: idPadre,
+                    idChat: idChat,
+                    IdEscenario: '@idEscenario'
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    cierraPopupEscenario();
+                    $('#modal-Comentario').css("display", "block");
+                    setTimeout(function () {
+                        $('#modal-Comentario').css("display", "none");
+                        location.reload();
+                    }, 2000);
+                })
+                .catch(error => {
+                    // Logica Error
+                    console.log('Error')
+                    alert('Hubo un error al guardar el comentario.');
+                    console.log(error)
+                })
+        }
+        function eliminar() {
+            //alert($('#selectTipo').val());
+            var urlGrabar = "/api/ChatBot/eliminarChat?idChat=" + idChat;
+            fetch(urlGrabar, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                
+            })
+                .then(res => res.json())
+                .then(data => {
+                    cierraPopupElimina();
+                    eliminarChat();
+                    //$('#modal-Comentario').css("display", "block");
+                    setTimeout(function () {
+                        //$('#modal-Comentario').css("display", "none");
+                        obtenerDatosDesdeBackend();
+                    }, 2000);
+                })
+                .catch(error => {
+                    // Logica Error
+                    console.log('Error')
+                    alert('Hubo un error al eliminar.');
+                    console.log(error)
+                })
+        }
+        function abrePopupElimina(id) {
+            idChat = id;
+            $('#modal-confirmar-eliminacion').css("display", "block");
+        }
+        function cierraPopupElimina() {
+            $('#modal-confirmar-eliminacion').css("display", "none");
+        }
+        function eliminarChat() {
+            $('#modal-confirmar-eliminacion').css("display", "none");
+        }
+
+        function crearElementoPreguntaRespuesta(pregunta, respuesta, id, hijoFinal) {
+            var li = document.createElement("li");
+
+            var h3 = document.createElement("h3");
+            h3.className = "level-3 rectangle";
+            h3.textContent = "Pregunta: " + pregunta;
+
+            var divIcons = document.createElement("div");
+            divIcons.className = "icons";
+            var iconEdit = crearIcono("fa fa-edit", "abrePopupEscenario(" + id + "," + 3 + ")");
+            var iconDelete = crearIcono("fa fa-trash", "abrePopupElimina(" + id + ")");
+            var iconPlus = crearIcono("fa fa-plus", "abrePopupEscenario(" + 0 + "," + 4 + "," + id + ")");
+            divIcons.appendChild(iconEdit);
+            divIcons.appendChild(iconDelete);
+            divIcons.appendChild(iconPlus);
+
+            var olRespuesta = document.createElement("ol");
+            olRespuesta.className = "level-4-wrapper";
+
+            var liRespuesta = document.createElement("li");
+
+            var h4Respuesta = document.createElement("h4");
+            h4Respuesta.className = "level-4 rectangle";
+            h4Respuesta.textContent = "Respuesta: " + respuesta;
+
+            var divIconsRespuesta = document.createElement("div");
+            divIconsRespuesta.className = "icons";
+            var iconEditRespuesta = crearIcono("fa fa-edit", "abrePopupEscenario(" + hijoFinal + "," + 4 + ")");
+            var iconDeleteRespuesta = crearIcono("fa fa-trash", "abrePopupElimina(" + hijoFinal + ")");
+            var iconPlusRespuesta = crearIcono("fa fa-plus", "abrePopupEscenario(" + 0 + "," + 4 + "," + id +")");
+            divIconsRespuesta.appendChild(iconEditRespuesta);
+            divIconsRespuesta.appendChild(iconDeleteRespuesta);
+            //divIconsRespuesta.appendChild(iconPlusRespuesta);
+
+            liRespuesta.appendChild(h4Respuesta);
+            liRespuesta.appendChild(divIconsRespuesta);
+
+            olRespuesta.appendChild(liRespuesta);
+
+            li.appendChild(h3);
+            li.appendChild(divIcons);
+            li.appendChild(olRespuesta);
+
+            return li;
+        }
+
+        // Función para crear un elemento de tópico
+        function crearElementoTopico(topico, preguntas, id) {
+            var ol = document.createElement("ol");
+            ol.className = "level-2-wrapper";
+            var li = document.createElement("li");
+
+            var h2 = document.createElement("h2");
+            h2.className = "level-2 rectangle";
+            h2.textContent = "Tópico: " + topico;
+
+            var divIcons = document.createElement("div");
+            divIcons.className = "icons";
+            var iconEdit = crearIcono("fa fa-edit", "abrePopupEscenario(" + id + "," + 2 + ")");
+            var iconDelete = crearIcono("fa fa-trash", "abrePopupElimina(" + id + ")");
+            var iconPlus = crearIcono("fa fa-plus", "abrePopupEscenario(" + 0 + "," + 3 + "," + id +")");
+            divIcons.appendChild(iconEdit);
+            divIcons.appendChild(iconDelete);
+            divIcons.appendChild(iconPlus);
+
+            var olPreguntas = document.createElement("ol");
+            olPreguntas.className = "level-4-wrapper";
+
+            preguntas.forEach(function (pregunta) {
+                var liPreguntaRespuesta = crearElementoPreguntaRespuesta(pregunta.pregunta, pregunta.respuesta, pregunta.id, pregunta.idHijoFinal);
+                olPreguntas.appendChild(liPreguntaRespuesta);
+            });
+            
+            li.appendChild(h2);
+            li.appendChild(divIcons);
+            li.appendChild(olPreguntas);
+            ol.appendChild(li);
+            return ol;
+        }
+
+        // Función para crear un icono
+        function crearIcono(className, onclick) {
+            var a = document.createElement("a");
+            a.href = "#";
+            if (onclick) {
+                a.onclick = function () { eval(onclick); };
+            }
+            var i = document.createElement("i");
+            i.className = className;
+            a.appendChild(i);
+            return a;
+        }
+
+        // Función para crear el árbol completo
+        function crearArbol(data) {
+            var container = document.createElement("div");
+            container.className = "container";
+
+            var h1 = document.createElement("h1");
+            h1.className = "level-1 rectangle";
+            h1.innerHTML  = "Escenario: " + data.escenario;
+
+            var iconsTitle = document.createElement("div");
+            iconsTitle.className = "iconsTitle";
+
+            var iconEdit = crearIcono("fa fa-edit", "abrePopupEscenario("+ data.id+"," + 1+")");
+            var iconDelete = crearIcono("fa fa-trash", "abrePopupElimina(" + data.id + ")");
+            var iconPlus = crearIcono("fa fa-plus", "abrePopupEscenario(" + 0 + "," + 2 + "," + data.id +")");
+
+            iconsTitle.appendChild(iconEdit);
+            //iconsTitle.appendChild(iconDelete);
+            iconsTitle.appendChild(iconPlus);
+
+            container.appendChild(h1);
+            container.appendChild(iconsTitle);
+            data.topicos.forEach(function (topico) {
+                var liTopico = crearElementoTopico(topico.topico, topico.preguntas, topico.id);
+                container.appendChild(liTopico);
+            });
+            return container;
+        }
+
+        
+        var datosDesdeBackend = {
+            //"escenario": "Empresas - Saludo Inicial: ¡Hola! Soy Lici, tu asistente virtual 👋",
+            //"topicos": [
+            //    {
+            //        "topico": "PRESENTACIÓN DE DOCUMENTACIÓN",
+            //        "preguntas": [
+            //            {
+            //                "pregunta": "¿Cómo puedo ponerle contraseña a los archivos que tengo que subir?",
+            //                "respuesta": "Pendiente de respuesta"
+            //            },
+            //            {
+            //                "pregunta": "¿La oferta económica se presenta por sistema?",
+            //                "respuesta": "Por el momento no es obligatorio presentar la oferta económica en forma digital, ya que estamos en un periodo de presentación híbrida, donde las empresas presentan en forma física la oferta."
+            //            }
+            //        ]
+            //    }
+            //]
+        };
+        obtenerDatosDesdeBackend();
+        function obtenerDatosDesdeBackend() {
+            fetch('/api/ChatBot/obtenerEscenarioCompleto?idEscenario=' + @idEscenario, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    datosDesdeBackend = data
+                    var container = document.querySelector('.container');
+                    //while (container.firstChild) {
+                    //    container.removeChild(container.firstChild);
+                    //}
+                    // Crear el árbol y añadirlo al contenedor
+                    var arbol = crearArbol(datosDesdeBackend);
+                    container.appendChild(arbol);
+                    console.log(data);
+                })
+                .catch(error => console.error('Error:', error));
+        }
+        //// Crear el árbol y añadirlo al DOM
+        //var arbol = crearArbol(datosDesdeBackend);
+        //document.body.appendChild(arbol);
+     
+
+    </script>
+}
